@@ -1,0 +1,60 @@
+[package]
+name = "netnima-core"
+description = "Everything in netNIMA that does not draw on the screen: sockets, protocols, config and decoders"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+chrono = { version = "0.4.45", default-features = false, features = ["clock"] }
+# DTLS 1.2 and 1.3, Sans-IO, with RustCrypto: no aws-lc, so no NASM or CMake on Windows.
+dimpl = { version = "0.9", default-features = false, features = ["rust-crypto"] }
+# TLS 1.0 and 1.1, PSK, the CCM and old CBC suites, and DTLS 1.0, for old and small
+# devices: OpenSSL, built from source into netNIMA. On Windows that needs Strawberry
+# Perl (scoop install perl); NASM is not needed, the C code is used instead.
+openssl = { version = "0.10", features = ["vendored"] }
+# Two calls rust-openssl does not wrap: DTLS's retransmission timer, asked for
+# and moved on by hand, since netNIMA owns the UDP socket.
+openssl-sys = "0.9"
+foreign-types = "0.3"
+# The computer's network interfaces: their addresses and prefixes, MAC, MTU,
+# kind (Wi-Fi or not), state, speed, gateway and DNS servers, on all three OSes.
+netdev = "0.47"
+# Test certificates: a CA, and certificates for a board and for a client.
+rcgen = { version = "0.14", default-features = false, features = ["crypto", "pem", "ring"] }
+# The fingerprints of certificates.
+ring = "0.17"
+# TLS 1.2 and 1.3, pure Rust. Ring, not its default aws-lc-rs, needs no NASM
+# to build on Windows, as in terNIMA.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+# The OS's own root certificates, to check a server's.
+rustls-native-certs = "0.8"
+# The names and dates in a certificate, to show them.
+x509-parser = "0.18"
+serde = { version = "1", features = ["derive"] }
+# A protocol tab's settings, as the UI sends them.
+serde_json = "1"
+# The socket options std does not reach: address reuse before binding,
+# IPv6 hop limits, keep-alive and closing with a reset.
+socket2 = "0.6"
+toml = "1.1.8"
+
+[target.'cfg(unix)'.dependencies]
+# poll(), to wait on a session's sockets and its wake-up socket together.
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+# WSAPoll, to wait on a session's sockets and its wake-up socket together; a
+# UDP socket that keeps reading after a datagram it sent comes back as "port
+# unreachable"; and ICMP echo for ping.
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_NetworkManagement_IpHelper",
+    "Win32_Networking_WinSock",
+    "Win32_System_IO",
+] }
+

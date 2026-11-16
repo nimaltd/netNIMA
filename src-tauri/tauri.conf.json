@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "netNIMA",
+  "mainBinaryName": "netNIMA",
+  "identifier": "com.nimaltd.netnima",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "netNIMA",
+        "width": 1200,
+        "height": 760,
+        "minWidth": 640,
+        "minHeight": 400,
+        "center": true,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' https://api.github.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "publisher": "Nima Askari (NimaLTD)",
+    "copyright": "Copyright 2026 Nima Askari (NimaLTD)",
+    "category": "DeveloperTool",
+    "shortDescription": "Network tester: UDP, TCP, TLS and protocols, both ends",
+    "longDescription": "A network tester for embedded developers: UDP, TCP, TLS and DTLS, and the protocols on top of them, each as a client and as a server, the same on Windows, Linux and macOS.",
+    "homepage": "https://github.com/nimaltd/netNIMA",
+    "license": "Apache-2.0",
+    "licenseFile": "../LICENSE.md",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

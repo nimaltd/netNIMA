@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- macOS 15 and later ask before an app reaches devices on the local network, and show this text. -->
+  <key>NSLocalNetworkUsageDescription</key>
+  <string>netNIMA talks to the devices on your network that you test with it, as a client and as a server.</string>
+</dict>
+</plist>
