@@ -39,8 +39,20 @@ const HANDLE_TIMEOUT: c_int = 74;
 /// cut into IP fragments.
 const MTU: u32 = 1200;
 
-/// The most bytes one record carries: what is sent at once goes in several.
+/// The most bytes of data a record can carry, as the other end may send.
 const MOST_IN_RECORD: usize = 16384;
+
+/// The bytes of data a record carries when OpenSSL cannot say yet: with any
+/// suite's overhead, a datagram of 1 KB of data fits the MTU.
+const RECORD_DATA: usize = 1024;
+
+unsafe extern "C" {
+    /// How many bytes of data a record takes for its datagram to fit the MTU,
+    /// once the record's header and the suite's overhead are taken off; 0
+    /// before a suite is agreed. OpenSSL has it since 1.1.1, and the openssl
+    /// crate does not reach it.
+    fn DTLS_get_data_mtu(ssl: *const openssl_sys::SSL) -> usize;
+}
 
 /// OpenSSL's struct timeval, as the platform has it.
 #[cfg(windows)]
@@ -330,9 +342,15 @@ impl OldDtls {
         timer.into_iter().chain(deadline).min()
     }
 
-    /// Sends bytes, in records of 16 KB at most.
+    /// Sends bytes, in as many records as it takes for each datagram to fit
+    /// the MTU. OpenSSL puts what it is given at once in one record, up to
+    /// 16 KB, which would cross the network as IP fragments, which small
+    /// devices drop, and which macOS does not send at all above 9216 bytes.
     pub(crate) fn send(&mut self, bytes: &[u8]) -> Result<(), String> {
-        for record in bytes.chunks(MOST_IN_RECORD) {
+        // SAFETY: the SSL is alive while `self` is, and this only reads it.
+        let fits = unsafe { DTLS_get_data_mtu(self.stream.ssl().as_ptr()) };
+        let most = if fits == 0 { RECORD_DATA } else { fits };
+        for record in bytes.chunks(most) {
             if let Err(error) = self.stream.ssl_write(record) {
                 return Err(self.problem(&error));
             }

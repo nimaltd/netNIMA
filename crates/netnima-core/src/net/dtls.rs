@@ -1254,14 +1254,29 @@ mod tests {
         }
 
         #[test]
-        fn a_long_send_goes_in_several_records() {
+        fn a_long_send_goes_in_records_that_fit_a_datagram() {
             let (_server, server_events, port) = server(old(DtlsVersion::Dtls12));
             let (client_end, client_events) = client(port, old(DtlsVersion::Dtls12));
             secure(&client_events);
-            let (peer, _) = secure(&server_events);
+            let (from, _) = secure(&server_events);
             let long: Vec<u8> = (0..40_000u32).map(|at| (at % 251) as u8).collect();
             client_end.send(Target::Default, long.clone());
-            assert_eq!(received(&server_events, peer, long.len()), long);
+            // Each record comes as data of its own, and none is bigger than
+            // the MTU of 1200 bytes lets it be.
+            let (mut data, mut records) = (Vec::new(), 0);
+            while data.len() < long.len() {
+                if let Event::Data { bytes, .. } = expect(
+                    &server_events,
+                    "data",
+                    |event| matches!(event, Event::Data { peer, .. } if *peer == from),
+                ) {
+                    assert!(bytes.len() < 1200, "{} bytes in a record", bytes.len());
+                    records += 1;
+                    data.extend(bytes);
+                }
+            }
+            assert_eq!(data, long);
+            assert!(records > 33, "{records} records");
         }
 
         #[test]

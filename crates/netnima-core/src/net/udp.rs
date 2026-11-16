@@ -397,7 +397,24 @@ pub(crate) fn open(config: &UdpConfig) -> Result<UdpSocket, String> {
         Socket::new(Domain::for_address(local), Type::DGRAM, Some(Protocol::UDP)).map_err(fail)?;
     if config.reuse_address {
         socket.set_reuse_address(true).map_err(fail)?;
+        // macOS and the BSDs let two sockets have one port only when both set
+        // SO_REUSEPORT, as mDNSResponder does on 5353; Linux and Windows
+        // share it with SO_REUSEADDR alone.
+        #[cfg(any(
+            target_os = "macos",
+            target_os = "ios",
+            target_os = "freebsd",
+            target_os = "netbsd",
+            target_os = "openbsd",
+            target_os = "dragonfly"
+        ))]
+        socket.set_reuse_port(true).map_err(fail)?;
     }
+    // macOS sends no datagram bigger than the socket's send buffer, which
+    // holds 9216 bytes at first: with 64 KB, a tab sends what it does on
+    // Windows and Linux, up to 65,507 bytes.
+    #[cfg(target_os = "macos")]
+    socket.set_send_buffer_size(65_536).map_err(fail)?;
     socket.bind(&local.into()).map_err(fail)?;
     socket.set_broadcast(config.broadcast).map_err(fail)?;
     match local.ip() {
@@ -573,6 +590,40 @@ mod tests {
             Event::Problem(problem) => problem,
             _ => unreachable!(),
         }
+    }
+
+    #[test]
+    fn two_sockets_share_a_port_when_both_ask() {
+        // As an mDNS tab shares 5353 with the OS's own responder.
+        let port = UdpSocket::bind("127.0.0.1:0")
+            .unwrap()
+            .local_addr()
+            .unwrap()
+            .port();
+        let shared = UdpConfig {
+            local_port: port,
+            reuse_address: true,
+            ..loopback()
+        };
+        let _first = open(&shared).expect("the first socket");
+        open(&shared).expect("a second socket on the same port");
+    }
+
+    #[test]
+    fn a_datagram_of_20_kb_goes_out_whole() {
+        // macOS sends no more than 9216 bytes in one at first.
+        let receiver = UdpSocket::bind("127.0.0.1:0").unwrap();
+        receiver
+            .set_read_timeout(Some(Duration::from_secs(5)))
+            .unwrap();
+        let sender = open(&loopback()).unwrap();
+        let big: Vec<u8> = (0..20_000u32).map(|at| (at % 251) as u8).collect();
+        sender
+            .send_to(&big, receiver.local_addr().unwrap())
+            .unwrap();
+        let mut buf = vec![0u8; DATAGRAM_MAX];
+        let (count, _) = receiver.recv_from(&mut buf).unwrap();
+        assert_eq!(&buf[..count], &big[..]);
     }
 
     #[test]

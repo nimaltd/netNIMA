@@ -38,9 +38,9 @@ x509-parser = "0.18"
 serde = { version = "1", features = ["derive"] }
 # A protocol tab's settings, as the UI sends them.
 serde_json = "1"
-# The socket options std does not reach: address reuse before binding,
-# IPv6 hop limits, keep-alive and closing with a reset.
-socket2 = "0.6"
+# The socket options std does not reach: address and port reuse before
+# binding, IPv6 hop limits, keep-alive and closing with a reset.
+socket2 = { version = "0.6", features = ["all"] }
 toml = "1.1.8"
 
 [target.'cfg(unix)'.dependencies]
