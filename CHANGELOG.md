@@ -5,6 +5,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-17
+
 ### Changed
 
 - The menu text size starts at 13 pixels, where nothing is zoomed, and
@@ -232,5 +234,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   lifetime, binding or list of objects was taken without them: the server
   went on counting down the old lifetime.
 
-[Unreleased]: https://github.com/nimaltd/netNIMA/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/nimaltd/netNIMA/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/nimaltd/netNIMA/releases/tag/v0.1.1
 [0.1.0]: https://github.com/nimaltd/netNIMA/releases/tag/v0.1.0

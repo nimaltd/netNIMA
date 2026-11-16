@@ -1,7 +1,7 @@
 {
   "name": "netnima",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A network tester for embedded developers: UDP, TCP, TLS and DTLS, and the protocols on top of them",
   "license": "Apache-2.0",
   "author": "Nima Askari (NimaLTD) <nima.askari@gmail.com>",
