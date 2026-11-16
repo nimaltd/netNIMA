@@ -61,8 +61,18 @@ jobs:
       - name: Rust lint
         run: cargo clippy --workspace --all-targets -- -D warnings
 
+      # A test that fails is said as an annotation too, with what it printed,
+      # which anyone can read without signing in to see the log.
       - name: Rust tests
-        run: cargo test --workspace
+        shell: bash
+        run: |
+          if cargo test --workspace 2>&1 | tee "$RUNNER_TEMP/tests.log"; then exit 0; fi
+          failures=$(awk '/^failures:$/ { on = 1 } on { print } /^test result: FAILED/ { exit }' "$RUNNER_TEMP/tests.log" | head -c 6000)
+          failures=${failures//'%'/'%25'}
+          failures=${failures//$'\r'/}
+          failures=${failures//$'\n'/'%0A'}
+          echo "::error title=Rust tests::${failures:-cargo test failed before a test ran: see the log}"
+          exit 1
 
       - name: The helper runs
         run: cargo run -p netnima-helper -- --version
