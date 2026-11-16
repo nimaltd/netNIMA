@@ -5,6 +5,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- The menu text size starts at 13 pixels, where nothing is zoomed, and
+  View > Normal menu text size goes to 13; in 0.1.0 both were 16. A size
+  chosen in Settings stays as it is.
+
 ## [0.1.0] - 2026-11-16
 
 ### Added
