@@ -5,6 +5,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-25
+
 ### Changed
 
 - The Welcome tab stays first in the tab bar while tabs are open, and a click
@@ -246,7 +248,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   lifetime, binding or list of objects was taken without them: the server
   went on counting down the old lifetime.
 
-[Unreleased]: https://github.com/nimaltd/netNIMA/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/nimaltd/netNIMA/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/nimaltd/netNIMA/releases/tag/v0.1.3
 [0.1.2]: https://github.com/nimaltd/netNIMA/releases/tag/v0.1.2
 [0.1.1]: https://github.com/nimaltd/netNIMA/releases/tag/v0.1.1
 [0.1.0]: https://github.com/nimaltd/netNIMA/releases/tag/v0.1.0
