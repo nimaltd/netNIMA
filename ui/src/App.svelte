@@ -242,16 +242,16 @@
 
   <main class="pane" style:--view-size={`${unzoomed(settings.font_size)}px`}>
     {#if ready}
-      {#if tabs.length === 0}
+      {#if tabs.length === 0 || view.welcome}
         <Welcome version={info?.version ?? ""} {helper} onnew={() => (newTabOpen = true)} />
       {/if}
       <!-- Every tab stays, hidden behind the one in front, so a terminal keeps what it showed. -->
       {#each tabs as tab, i (tab.id)}
-        <div class="slot" class:hidden={i !== view.active}>
+        <div class="slot" class:hidden={i !== view.active || view.welcome}>
           {#if tab.built}
             <NetTab
               {tab}
-              active={i === view.active}
+              active={i === view.active && !view.welcome}
               {isAppKey}
               onsettings={() => (setup = { tab, starting: false })}
               onmacros={() => (macrosOpen = true)}
