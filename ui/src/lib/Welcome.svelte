@@ -1,5 +1,6 @@
 <script lang="ts">
   import { openUrl } from "@tauri-apps/plugin-opener";
+  import Donate from "./Donate.svelte";
   import { helperIsGood, helperText, type HelperInfo } from "./helper";
   import { logo } from "./logo";
   import { NEW_TAB_SHORTCUT } from "./menus";
@@ -27,6 +28,10 @@
 </script>
 
 <div class="welcome">
+  <div class="donate">
+    <Donate app="netNIMA" />
+  </div>
+
   <svg
     class="logo"
     width={drawn.width}
@@ -99,6 +104,12 @@
   .logo {
     display: block;
     shape-rendering: crispEdges;
+  }
+
+  /* At the right, beside the rest, which flows around it. */
+  .donate {
+    float: right;
+    margin: 0 0 12px 3ch;
   }
 
   .net-face {
